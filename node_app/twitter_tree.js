@@ -77,9 +77,9 @@ twitter.stream('statuses/filter', {track: track}, function(stream) {
             timestamp: (new Date()).getTime()
         };
 
-        //elasticCreate(elasticObj).catch(function(err) {
-        //    console.log('There was an error saving this tweet to elasticsearch.\n\n'+err);
-        //});
+        elasticCreate(elasticObj).catch(function(err) {
+            console.log('There was an error saving this tweet to elasticsearch.\n\n'+err);
+        });
     }
   });
  
