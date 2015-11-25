@@ -32,6 +32,15 @@ node_modules
 
 # IntelliJ project files
 .idea
+/.idea/.name
+/.idea/misc.xml
+/.idea/vcs.xml
+/.idea/modules.xml
+/.idea/twitter_tree.iml
+/.idea/atlassian-ide-plugin.xml
+/.idea/workspace.xml
+/.idea/encodings.xml
+
 *.iml
 out
 gen### Processing template
