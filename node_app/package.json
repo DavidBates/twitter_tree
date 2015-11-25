@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "elasticsearch": "^10.0.0",
+    "ramda": "^0.18.0",
     "twitter": "~1.2.5"
   },
   "license": "MIT"
