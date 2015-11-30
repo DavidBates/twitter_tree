@@ -1,4 +1,10 @@
 {
+  "name": "twitter_tree",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node twitter_tree.js 'Twitter-Key' 'Twitter-Key' 'Twitter-Key' 'Twitter-Key' 'Elasticsearch-Endpoint' 'Elasticsearch-Index-Name' 'Twitter-Phrase'"
+  },
   "dependencies": {
     "elasticsearch": "^10.0.0",
     "ramda": "^0.18.0",

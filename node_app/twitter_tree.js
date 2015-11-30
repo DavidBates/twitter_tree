@@ -5,37 +5,37 @@ var colours = {"hokieorange":"#660000", "hokiered":"#660000", "lightpink":"#FFB6
 var R = require('ramda');
 
 var consumer_key = process.argv[2],
-consumer_secret = process.argv[3],
-access_token_key = process.argv[4],
-access_token_secret = process.argv[5],
-elasticsearch_endpoint = process.argv[6],
-elasticsearch_index = process.argv[7],
-track = process.argv[8];
+    consumer_secret = process.argv[3],
+    access_token_key = process.argv[4],
+    access_token_secret = process.argv[5],
+    elasticsearch_endpoint = process.argv[6],
+    elasticsearch_index = process.argv[7],
+    track = process.argv[8];
 
 var twitter_api = require('twitter'),
-	twitter = new twitter_api({
-		consumer_key: consumer_key,
-		consumer_secret: consumer_secret,
-		access_token_key: access_token_key,
-		access_token_secret: access_token_secret,
-	});
+    twitter = new twitter_api({
+        consumer_key: consumer_key,
+        consumer_secret: consumer_secret,
+        access_token_key: access_token_key,
+        access_token_secret: access_token_secret,
+    });
 
 var elasticCreate = (function(endpoint, index) {
-        var client = require('elasticsearch').Client({
-            host: endpoint,
-            log: 'error'
+    var client = require('elasticsearch').Client({
+        host: endpoint,
+        log: 'error'
+    });
+    return function create(body) {
+        return client.index({
+            index: index,
+            type: 'twitter-tree-doc',
+            body: body
         });
-        return function create(body) {
-            return client.index({
-                index: index,
-                type: 'twitter-tree-doc',
-                body: body
-            });
-        }
-    })(elasticsearch_endpoint, elasticsearch_index);
+    }
+})(elasticsearch_endpoint, elasticsearch_index);
 
 var count = 0,
-	utils = require('util');
+    utils = require('util');
 
 var split = R.split(' ');
 var filterColors = R.filter(R.either(isHexColor, matchWordColor));
@@ -43,49 +43,49 @@ var getFirstItem = function(words) { return words[0]; };
 var getUndefined = function() { return undefined; };
 var wordToHex = R.ifElse(matchWordColor, matchWordColor, R.identity);
 var convertColor = R.compose(wordToHex, getFirstItem);
-var getFirstColor = R.ifElse(R.compose(R.not, R.isEmpty), convertColor, getUndefined); 
+var getFirstColor = R.ifElse(R.compose(R.not, R.isEmpty), convertColor, getUndefined);
 var getColor = R.compose(getFirstColor, filterColors, split);
 
 twitter.stream('statuses/filter', {track: track}, function(stream) {
-  console.log("tracking" + track);
-  stream.on('data', function(tweet) {
+    console.log("tracking" + track);
+    stream.on('data', function(tweet) {
 //    Add Elasticsearch Client?
-  	if(tweet.lang.indexOf("en") > -1){
+        if(tweet.lang.indexOf("en") > -1){
 
-  		console.log("Heard Tweet: " + tweet.text);
-  		console.log("Finding Color");
+            console.log("Heard Tweet: " + tweet.text);
+            console.log("Finding Color");
 
-        var hexColor = getColor(tweet.text);
-        if (!hexColor) {
-            console.log('No color found in tweet.');
-            return;
+            var hexColor = getColor(tweet.text);
+            if (!hexColor) {
+                console.log('No color found in tweet.');
+                return;
+            }
+
+            var color = hexToRgb(hexColor);
+
+            if (colorTooDark(color)) {
+                console.log('Color is too dark for tree, skipping: ' + JSON.stringify(color));
+                return;
+            }
+            console.log("Sending color to Tree: R:" + color.r + " G: " + color.g + " B: " + color.b);
+
+            var elasticObj = {
+                user: tweet.user.screen_name,
+                text: tweet.text,
+                hexColor: hexColor,
+                rgbColor: color,
+                timestamp: (new Date()).getTime()
+            };
+
+            elasticCreate(elasticObj).catch(function(err) {
+                console.log('There was an error saving this tweet to elasticsearch.\n\n'+err);
+            });
         }
+    });
 
-        var color = hexToRgb(hexColor);
-
-  	    if (colorTooDark(color)) {
-            console.log('Color is too dark for tree, skipping: ' + JSON.stringify(color));
-            return;
-        }
-        console.log("Sending color to Tree: R:" + color.r + " G: " + color.g + " B: " + color.b);
-
-        var elasticObj = {
-            user: tweet.user.screen_name,
-            text: tweet.text,
-            hexColor: hexColor,
-            rgbColor: color,
-            timestamp: (new Date()).getTime()
-        };
-
-        elasticCreate(elasticObj).catch(function(err) {
-            console.log('There was an error saving this tweet to elasticsearch.\n\n'+err);
-        });
-    }
-  });
- 
-  stream.on('error', function(error) {
-    console.log(error);
-  });
+    stream.on('error', function(error) {
+        console.log(error);
+    });
 });
 
 function colorTooDark(rgb) {
@@ -106,7 +106,7 @@ function matchWordColor(color){
 }
 
 function isHexColor(word) {
-  	return /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(word);
+    return /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(word);
 }
 
 function hexToRgb(hex) {
