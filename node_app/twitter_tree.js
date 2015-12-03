@@ -163,7 +163,11 @@ var twitter_api = require('twitter'),
 
 var elasticCreate = (function(endpoint, index) {
     var client = require('elasticsearch').Client({
-        host: endpoint,
+        host: {
+            host:'localhost',
+            port:'9200',
+            protocol: 'http'
+        },
         log: 'error'
     });
     return function create(body) {
@@ -188,7 +192,7 @@ var getFirstColor = R.ifElse(R.compose(R.not, R.isEmpty), convertColor, getUndef
 var getColor = R.compose(getFirstColor, filterColors, split);
 
 twitter.stream('statuses/filter', {track: track}, function(stream) {
-    console.log("tracking" + track);
+    console.log("tracking the Term: " + track);
     stream.on('data', function(tweet) {
 //    Add Elasticsearch Client?
         if(tweet.lang.indexOf("en") > -1){
@@ -241,6 +245,7 @@ function colorTooDark(rgb) {
 }
 
 function matchWordColor(color){
+    color = color.toLowerCase().replace(/\W+/g, "");
     if (typeof colours[color.toLowerCase()] != 'undefined')
         return colours[color.toLowerCase()];
     return false;
