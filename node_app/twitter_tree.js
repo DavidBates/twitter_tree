@@ -163,11 +163,7 @@ var twitter_api = require('twitter'),
 
 var elasticCreate = (function(endpoint, index) {
     var client = require('elasticsearch').Client({
-        host: {
-            host:'localhost',
-            port:'9200',
-            protocol: 'http'
-        },
+        host: endpoint,
         log: 'error'
     });
     return function create(body) {
