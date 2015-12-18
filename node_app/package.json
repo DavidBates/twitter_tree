@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "node twitter_tree.js 'Twitter-Key' 'Twitter-Key' 'Twitter-Key' 'Twitter-Key' 'Elasticsearch-Endpoint' 'Elasticsearch-Index-Name' 'Twitter-Phrase'"
+    "start": "node twitter_tree.js 'JwyBOQdB1OdT6IA0KxNqUrLo6' '5FwQ3Nj55R7LeoPwFcUI4aHsDEdEzkLafASwOqPJqoO9JTn6zy' '16951280-wKrswTx3k3hWpsKmMjlzpbkbLwJMYnjL262FxbPQo' 'sXQoxdax02Tlkbz7zAq5RIlaRAJuQgBJOFp5xeFbUXume' '{host:localhost, port:9200}' 'twitter-test' 'testingtree'"
   },
   "dependencies": {
     "elasticsearch": "^10.0.0",
